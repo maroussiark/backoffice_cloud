@@ -14,19 +14,21 @@ import {
   InputGroup,
   Col,
 } from "reactstrap";
+import Loader from 'pages/tools/Loader';
 
 const Login = () => {
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [error, setError] = useState('')
-
-  
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
+    setLoading(true);
     e.preventDefault();
 
     try {
-      const response = await api.post('/rest/auth/login', {email,password});
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await api.post('/rest/auth/login', { email, password });
       const authToken = response.data.token;
 
       localStorage.setItem('authToken', authToken);
@@ -34,6 +36,8 @@ const Login = () => {
     } catch (error) {
       console.error('Login failed', error);
       setError('Login failed');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -45,7 +49,8 @@ const Login = () => {
             <h3 className="text-center text-muted"> LOGIN </h3>
           </CardHeader>
           <CardBody className="px-lg-5 py-lg-4">
-            <Form  onSubmit={handleLogin}>
+
+            <Form onSubmit={handleLogin}>
               <FormGroup className="mb-4">
                 <InputGroup className="input-group-alternative">
                   <InputGroupAddon addonType="prepend">
@@ -79,16 +84,24 @@ const Login = () => {
                 </InputGroup>
               </FormGroup>
 
-              <div className="text-center">
-                <Button className="my-4" color="primary" type="submit" >
-                  Sign in
-                </Button>
-              </div>
-              {error ? (
-                <div className="alert alert-danger">
-                  {error}
-                </div>) : (<span></span>)
-              }
+              {loading ? (
+                <div className="text-center">
+                  <Button className="my-4">
+                    <Loader  />
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  {error && <p className='alert alert-danger'>{error}</p>}
+                  <div className="text-center">
+                    <Button className="my-4" color="primary" type="submit" >
+                      Sign in
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+
             </Form>
           </CardBody>
         </Card>
