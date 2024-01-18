@@ -16,28 +16,26 @@ import {
 } from "reactstrap";
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
-  const [error,setError]=useState('')
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [error, setError] = useState('')
 
-  const handleInputChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
+  
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     try {
-      const response = await api.post('/rest/auth/login', credentials);
+      const response = await api.post('/rest/auth/login', {email,password});
       const authToken = response.data.token;
 
-      // Stocker le token dans localStorage ou state, par exemple
       localStorage.setItem('authToken', authToken);
       window.location.href = '/admin/index'
-      // Ensuite, vous pouvez rediriger l'utilisateur ou faire d'autres actions nécessaires
     } catch (error) {
       console.error('Login failed', error);
       setError('Login failed');
-      // Gérer les erreurs d'authentification ici
     }
-  };
+  }
 
   return (
     <>
@@ -47,7 +45,7 @@ const Login = () => {
             <h3 className="text-center text-muted"> LOGIN </h3>
           </CardHeader>
           <CardBody className="px-lg-5 py-lg-4">
-            <Form role="form" onSubmit={handleLogin}>
+            <Form  onSubmit={handleLogin}>
               <FormGroup className="mb-4">
                 <InputGroup className="input-group-alternative">
                   <InputGroupAddon addonType="prepend">
@@ -58,10 +56,9 @@ const Login = () => {
                   <Input
                     placeholder="Email"
                     type="email"
-                    autoComplete="new-email"
                     name="email"
-                    value={credentials.email}
-                    onChange={handleInputChange}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </InputGroup>
               </FormGroup>
@@ -75,10 +72,9 @@ const Login = () => {
                   <Input
                     placeholder="Password"
                     type="password"
-                    autoComplete="new-password"
                     name="password"
-                    value={credentials.password}
-                    onChange={handleInputChange}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </InputGroup>
               </FormGroup>
@@ -89,9 +85,9 @@ const Login = () => {
                 </Button>
               </div>
               {error ? (
-              <div className="alert alert-danger">
-                {error}
-              </div>):(<span></span>)
+                <div className="alert alert-danger">
+                  {error}
+                </div>) : (<span></span>)
               }
             </Form>
           </CardBody>
